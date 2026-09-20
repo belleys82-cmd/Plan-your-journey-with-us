@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { addPost } from "@/lib/posts";
 import { addComment } from "@/lib/comments";
 import { generateAiComment } from "@/lib/gemini";
@@ -16,14 +17,18 @@ export async function createPost(formData: FormData) {
 
   const post = await addPost(title, content);
 
-  try {
-    const aiReply = await generateAiComment(title, content);
-    if (aiReply) {
-      await addComment(post.id, aiReply, AI_COMMENT_AUTHOR);
+  after(async () => {
+    try {
+      const aiReply = await generateAiComment(title, content);
+      if (aiReply) {
+        await addComment(post.id, aiReply, AI_COMMENT_AUTHOR);
+        revalidatePath(`/posts/${post.id}`);
+        revalidatePath("/");
+      }
+    } catch {
+      // AI comment is a nice-to-have; a Gemini failure shouldn't affect posting.
     }
-  } catch {
-    // AI comment is a nice-to-have; a Gemini failure shouldn't block posting.
-  }
+  });
 
   revalidatePath("/");
   redirect("/");
