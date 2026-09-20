@@ -35,7 +35,13 @@ export async function getPost(id: string): Promise<Post | null> {
   return data;
 }
 
-export async function addPost(title: string, content: string) {
-  const { error } = await supabase.from("posts").insert({ title, content });
+export async function addPost(title: string, content: string): Promise<Post> {
+  const { data, error } = await supabase
+    .from("posts")
+    .insert({ title, content })
+    .select("*")
+    .single();
+
   if (error) throw error;
+  return data;
 }

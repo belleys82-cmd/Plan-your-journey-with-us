@@ -19,10 +19,10 @@ export async function getComments(postId: string): Promise<Comment[]> {
   return data;
 }
 
-export async function addComment(postId: string, content: string) {
+export async function addComment(postId: string, content: string, author?: string) {
   const { error } = await supabase
     .from("comments")
-    .insert({ post_id: postId, content });
+    .insert({ post_id: postId, content, ...(author ? { author } : {}) });
 
   if (error) throw error;
 }

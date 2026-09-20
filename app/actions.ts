@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { addPost } from "@/lib/posts";
 import { addComment } from "@/lib/comments";
+import { generateAiComment } from "@/lib/gemini";
+
+const AI_COMMENT_AUTHOR = "🤖 AI 여행 큐레이터";
 
 export async function createPost(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
@@ -11,7 +14,17 @@ export async function createPost(formData: FormData) {
 
   if (!title || !content) return;
 
-  await addPost(title, content);
+  const post = await addPost(title, content);
+
+  try {
+    const aiReply = await generateAiComment(title, content);
+    if (aiReply) {
+      await addComment(post.id, aiReply, AI_COMMENT_AUTHOR);
+    }
+  } catch {
+    // AI comment is a nice-to-have; a Gemini failure shouldn't block posting.
+  }
+
   revalidatePath("/");
   redirect("/");
 }

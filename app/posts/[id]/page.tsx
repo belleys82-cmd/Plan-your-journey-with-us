@@ -53,7 +53,7 @@ export default async function PostPage({
                 {comment.content}
               </p>
               <div className="mt-2 flex gap-3 text-xs text-rose-300">
-                <span>🐣 익명</span>
+                <span>{comment.author === "익명" ? "🐣 익명" : comment.author}</span>
                 <span>{formatDate(comment.created_at)}</span>
               </div>
             </li>
