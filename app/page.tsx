@@ -1,17 +1,9 @@
 import Link from "next/link";
 import { getPosts } from "@/lib/posts";
+import { formatDate } from "@/lib/format";
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleString("ko-KR", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-export default function Home() {
-  const posts = getPosts();
+export default async function Home() {
+  const posts = await getPosts();
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-16">
@@ -46,13 +38,20 @@ export default function Home() {
               key={post.id}
               className="rounded-3xl border border-pink-100 bg-white/80 p-6 shadow-sm shadow-pink-100"
             >
-              <h2 className="text-base font-semibold text-rose-600">{post.title}</h2>
+              <h2 className="text-base font-semibold text-rose-600">
+                <Link href={`/posts/${post.id}`} className="hover:underline">
+                  {post.title}
+                </Link>
+              </h2>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-rose-900/70">
                 {post.content}
               </p>
-              <div className="mt-3 flex gap-3 text-xs text-rose-300">
+              <div className="mt-3 flex items-center gap-3 text-xs text-rose-300">
                 <span>🐣 익명</span>
-                <span>{formatDate(post.createdAt)}</span>
+                <span>{formatDate(post.created_at)}</span>
+                <Link href={`/posts/${post.id}`} className="text-rose-400 hover:text-rose-600">
+                  💬 댓글
+                </Link>
               </div>
             </li>
           ))}
