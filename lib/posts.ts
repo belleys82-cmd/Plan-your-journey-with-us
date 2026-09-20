@@ -8,14 +8,20 @@ export type Post = {
   created_at: string;
 };
 
-export async function getPosts(): Promise<Post[]> {
+export type PostWithCommentCount = Post & { comment_count: number };
+
+export async function getPosts(): Promise<PostWithCommentCount[]> {
   const { data, error } = await supabase
     .from("posts")
-    .select("*")
+    .select("*, comments(count)")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return data;
+
+  return data.map(({ comments, ...post }) => ({
+    ...post,
+    comment_count: comments[0]?.count ?? 0,
+  }));
 }
 
 export async function getPost(id: string): Promise<Post | null> {

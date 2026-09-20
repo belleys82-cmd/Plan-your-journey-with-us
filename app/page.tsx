@@ -50,7 +50,7 @@ export default async function Home() {
                 <span>🐣 익명</span>
                 <span>{formatDate(post.created_at)}</span>
                 <Link href={`/posts/${post.id}`} className="text-rose-400 hover:text-rose-600">
-                  💬 댓글
+                  💬 댓글 {post.comment_count}
                 </Link>
               </div>
             </li>
